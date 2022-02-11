@@ -1,12 +1,11 @@
 import { Autocomplete, Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 interface Props {
-  // onsubmit: () => void
   onChange: (event: any, value: any) => void;
   name: string;
   id: number;
@@ -14,39 +13,37 @@ interface Props {
   year: number;
 }
 
-const useStyles = makeStyles({
-  root: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    border: 0,
-    borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-    color: 'white',
-    height: 48,
-    padding: '0 30px',
-  },
-});
 
 const DragDrop = ({ onChange, id, name, label, year }: Props) => {
 
-  const classes = useStyles()
-
-  const inputLabelRef = React.createRef<HTMLLabelElement>()
   const [inputText, setInputText] = useState<string>("")
   const [disabled, setDisabled] = useState<boolean>(true)
 
+  const inputRef = useRef<HTMLInputElement>();
 
+  useEffect(()=>{
+    if(!disabled){
+      inputRef.current?.focus();
+      setInputText("")
+    }
+  },[inputRef.current,disabled])
 
-  console.log(inputText)
+  const setTextInputRef = (element: HTMLInputElement) => {
+    inputRef.current = element;
+  };
+
+  console.log(disabled)
+
   return (
     <div>
         <TextField
           id="standard-helperText"
-          label="Helper text"
-          defaultValue="Default Value"
-          helperText="Some important text"
+          label="Column Name"
+          value={inputText}
           onChange={(e: any) => setInputText(e.target.value)}
           disabled={disabled}
-          // className={`${disabled ? classes.root :console.log("bye")}`}
+          // className={`${disabled ? console.log("afawf") :console.log("bye")}`}
+          inputRef={setTextInputRef}
         />
 
         <Button onClick={()=>setDisabled(!disabled)}>
