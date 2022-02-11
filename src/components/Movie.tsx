@@ -6,6 +6,7 @@ import { gql, useMutation } from "@apollo/client";
 type PropsType = {
     id:number,
     isLiked:boolean
+    medium_cover_image:string
 }
 
 const LIKE_MOVIE = gql`
@@ -31,13 +32,13 @@ const Poster = styled.div`
 `;
 
 
-const Movie = ({id,isLiked}:PropsType) => {
+const Movie = ({id,isLiked,medium_cover_image}:PropsType) => {
     // const [toggleMovie] = useMutation(LIKE_MOVIE, {
     //     variables: { id: Number(id), isLiked }
     //   });
-    console.log(id)
   return <div>
      <Link to={`/${id}`}>{Number(id)}</Link>
+     <img src={medium_cover_image} alt="" />
        {/* <Container>
       <Link to={`/${id}`}>
         <Poster  />
