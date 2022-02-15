@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 // import TextField from "@material-ui/core/TextField";
 import EditIcon from "@material-ui/icons/Edit";
 // import CheckIcon from "@material-ui/icons/Check";
+import OutlinedInput from '@mui/material/OutlinedInput';
+
 import {
   FormControl,
   FormHelperText,
@@ -15,7 +17,7 @@ import { gql, useMutation } from "@apollo/client";
 
 const CREATE_PRODUCT = gql`
   mutation AddProduct($name: String!) {
-    addProduct( name: $name) {
+    addProduct(name: $name) {
       name
     }
   }
@@ -25,27 +27,47 @@ const EditTextField = () => {
   const [inputText, setInputText] = useState<string>("");
   const [disabled, setDisabled] = useState<boolean>(true);
 
-  const [AddProduct,{data, loading, error}] = useMutation(CREATE_PRODUCT, {
-    variables:{
-      name:inputText,
-    }
-  })
+  const [AddProduct, { data, loading, error }] = useMutation(CREATE_PRODUCT, {
+    variables: {
+      name: inputText,
+    },
+  });
+
+  const inputRef = useRef<HTMLInputElement>();
+  
+  const setTextInputRef = (element: HTMLInputElement) => {
+    inputRef.current = element;
+  };
+
   useEffect(() => {
-    AddProduct()
-  },[inputText])
+    if (!disabled) {
+      inputRef.current?.focus();
+      setInputText("");
+    }
+  }, [inputRef.current, disabled]);
+
+
+  useEffect(() => {
+    AddProduct();
+  }, [inputText]);
 
   return (
     <Grid container>
       <Grid item>
         <FormControl>
-          <Input
+          <OutlinedInput
             id="standard-adornment-weight"
             value={inputText}
-            onChange={(e: any) => {setInputText(e.target.value); AddProduct()}}
+            onChange={(e: any) => {
+              setInputText(e.target.value);
+              AddProduct();
+            }}
+            disabled={disabled}
+            inputRef={setTextInputRef}
             endAdornment={
               <InputAdornment position="end">
-                 <Button onClick={() =>AddProduct()} >
-                 <EditIcon />Edit
+                <Button onClick={() => {AddProduct(); setDisabled(!disabled)}}>
+                  <EditIcon />
                 </Button>
               </InputAdornment>
             }
@@ -61,20 +83,19 @@ const EditTextField = () => {
 
 export default EditTextField;
 
+// useEffect(() => {
+//   if (!disabled) {
+//     inputRef.current?.focus();
+//     setInputText("");
+//   }
+// }, [inputRef.current, disabled]);
 
+// const setTextInputRef = (element: HTMLInputElement) => {
+//   inputRef.current = element;
+// };
 
-  // useEffect(() => {
-  //   if (!disabled) {
-  //     inputRef.current?.focus();
-  //     setInputText("");
-  //   }
-  // }, [inputRef.current, disabled]);
-
-  // const setTextInputRef = (element: HTMLInputElement) => {
-  //   inputRef.current = element;
-  // };
-
-        {/* <TextField
+{
+  /* <TextField
           label="Column Name"
           value={inputText}
           onChange={(e: any) => setInputText(e.target.value)}
@@ -87,4 +108,5 @@ export default EditTextField;
         </Button>
       </Grid>
       <Grid item>
-         */}
+         */
+}
