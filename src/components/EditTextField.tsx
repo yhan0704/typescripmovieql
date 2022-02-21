@@ -1,40 +1,56 @@
 import { Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-// import TextField from "@material-ui/core/TextField";
 import EditIcon from "@material-ui/icons/Edit";
-// import CheckIcon from "@material-ui/icons/Check";
-import OutlinedInput from '@mui/material/OutlinedInput';
+import OutlinedInput from "@mui/material/OutlinedInput";
 
 import {
   FormControl,
   FormHelperText,
   Grid,
-  Input,
   InputAdornment,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
 const CREATE_PRODUCT = gql`
-  mutation AddProduct($name: String!) {
-    addProduct(name: $name) {
+  mutation ($input: addProductInput!) {
+    addProduct(input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+const GET_PRODUCT = gql`
+  query products {
+    products {
+      id
       name
     }
   }
 `;
 
 const EditTextField = () => {
+  const { loading, data } = useQuery(GET_PRODUCT);
+
+  console.log(data && data.products[0].name)
   const [inputText, setInputText] = useState<string>("");
   const [disabled, setDisabled] = useState<boolean>(true);
 
-  const [AddProduct, { data, loading, error }] = useMutation(CREATE_PRODUCT, {
+  const [AddProduct, { data: data1 }] = useMutation(CREATE_PRODUCT, {
     variables: {
-      name: inputText,
+      input: {
+        id: 1,
+        name: inputText,
+      },
     },
   });
 
+  useEffect(()=>{
+    setInputText(data && data.products[0].name)
+  },[data && data.products[0].name])
+
   const inputRef = useRef<HTMLInputElement>();
-  
+
   const setTextInputRef = (element: HTMLInputElement) => {
     inputRef.current = element;
   };
@@ -42,14 +58,8 @@ const EditTextField = () => {
   useEffect(() => {
     if (!disabled) {
       inputRef.current?.focus();
-      setInputText("");
     }
   }, [inputRef.current, disabled]);
-
-
-  useEffect(() => {
-    AddProduct();
-  }, [inputText]);
 
   return (
     <Grid container>
@@ -57,23 +67,31 @@ const EditTextField = () => {
         <FormControl>
           <OutlinedInput
             id="standard-adornment-weight"
-            value={inputText}
+            style={{ padding: "0" }}
+            // placeholder={data && data.products[0].name}
+            // defaultValue={inputText}
+            value={inputText || ""}
             onChange={(e: any) => {
               setInputText(e.target.value);
-              AddProduct();
             }}
             disabled={disabled}
             inputRef={setTextInputRef}
             endAdornment={
               <InputAdornment position="end">
-                <Button onClick={() => {AddProduct(); setDisabled(!disabled)}}>
+                <Button
+                  onClick={() => {
+                    AddProduct();
+                    setDisabled(!disabled);
+                  }}
+                  style={{ padding: "15px 0" }}
+                >
                   <EditIcon />
                 </Button>
               </InputAdornment>
             }
           />
           <FormHelperText id="standard-weight-helper-text">
-            Column Nmae
+            Column Name
           </FormHelperText>
         </FormControl>
       </Grid>
@@ -94,8 +112,7 @@ export default EditTextField;
 //   inputRef.current = element;
 // };
 
-{
-  /* <TextField
+/* <TextField
           label="Column Name"
           value={inputText}
           onChange={(e: any) => setInputText(e.target.value)}
@@ -109,4 +126,3 @@ export default EditTextField;
       </Grid>
       <Grid item>
          */
-}
